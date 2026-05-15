@@ -1,6 +1,6 @@
 """OrderItem entity"""
 
-from src.order_module.product import Product
+from src.product import Product
 
 
 class OrderItem:

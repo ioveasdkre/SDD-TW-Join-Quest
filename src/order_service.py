@@ -2,9 +2,9 @@
 
 from typing import List, Optional
 
-from src.order_module.order import Order
-from src.order_module.order_item import OrderItem
-from src.order_module.promotions import BuyOneGetOnePromotion, ThresholdDiscount
+from src.order import Order
+from src.order_item import OrderItem
+from src.promotions import BuyOneGetOnePromotion, ThresholdDiscount
 
 
 class OrderService:

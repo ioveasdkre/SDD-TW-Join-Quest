@@ -2,9 +2,9 @@
 
 from behave import given, then, when
 
-from src.order_module.order_item import OrderItem
-from src.order_module.order_service import OrderService
-from src.order_module.product import Product
+from src.order_item import OrderItem
+from src.order_service import OrderService
+from src.product import Product
 
 
 @given("no promotions are applied")
