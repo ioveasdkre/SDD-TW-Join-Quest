@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BDD 測試報告 - 總覽</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 40px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 3em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.2em;
+        opacity: 0.9;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 30px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+      }
+
+      .summary-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #667eea;
+      }
+
+      .summary-card h3 {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+      }
+
+      .summary-card .value {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .summary-card.passed {
+        border-left-color: #28a745;
+      }
+
+      .summary-card.passed .value {
+        color: #28a745;
+      }
+
+      .reports {
+        padding: 30px;
+      }
+
+      .report-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+        cursor: pointer;
+      }
+
+      .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .report-card a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .report-title {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .report-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .stat {
+        text-align: center;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 0.85em;
+        margin-bottom: 5px;
+      }
+
+      .stat-value {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .stat-value.passed {
+        color: #28a745;
+      }
+
+      .report-link {
+        display: inline-block;
+        padding: 8px 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: opacity 0.3s;
+      }
+
+      .report-link:hover {
+        opacity: 0.9;
+      }
+
+      .footer {
+        background: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .progress-bar {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>🚀 BDD 測試報告總覽</h1>
+        <p>Behavior Driven Development Test Dashboard</p>
+      </div>
+
+      <!-- Overall Summary -->
+      <div class="summary">
+        <div class="summary-card passed">
+          <h3>總通過場景</h3>
+          <div class="value">31/31</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%"></div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <h3>總場景數</h3>
+          <div class="value">31</div>
+        </div>
+        <div class="summary-card passed">
+          <h3>總通過步驟</h3>
+          <div class="value">103/103</div>
+        </div>
+        <div class="summary-card">
+          <h3>成功率</h3>
+          <div class="value">100.0%</div>
+        </div>
+      </div>
+
+      <!-- Individual Reports -->
+      <div class="reports">
+        <h2 style="margin-bottom: 20px; color: #333">詳細報告</h2>
+        <div class="report-card">
+          <a href="chess_report.html">
+            <div class="report-title">♟️ 象棋 (Chinese Chess)</div>
+            <div class="report-stats">
+              <div class="stat">
+                <div class="stat-label">場景</div>
+                <div class="stat-value passed">22/22</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">步驟</div>
+                <div class="stat-value">66/66</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">成功率</div>
+                <div class="stat-value" style="color: #28a745">100.0%</div>
+              </div>
+            </div>
+            <a href="chess_report.html" class="report-link">查看詳細報告 →</a>
+          </a>
+        </div>
+        <div class="report-card">
+          <a href="order_report.html">
+            <div class="report-title">📦 訂單系統 (Order System)</div>
+            <div class="report-stats">
+              <div class="stat">
+                <div class="stat-label">場景</div>
+                <div class="stat-value passed">9/9</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">步驟</div>
+                <div class="stat-value">37/37</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">成功率</div>
+                <div class="stat-value" style="color: #28a745">100.0%</div>
+              </div>
+            </div>
+            <a href="order_report.html" class="report-link">查看詳細報告 →</a>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>
+          報告生成時間：2026-05-17 14:14:14<br />
+          共 2 個 Feature，31 個場景，31 個通過
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

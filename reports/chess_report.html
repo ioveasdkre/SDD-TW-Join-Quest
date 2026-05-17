@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>♟️ 象棋 (Chinese Chess) - BDD 測試報告</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 15px;
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-size: 0.95em;
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+        transition: background 0.3s;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 30px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+      }
+
+      .summary-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #667eea;
+      }
+
+      .summary-card.passed {
+        border-left-color: #28a745;
+      }
+
+      .summary-card.failed {
+        border-left-color: #dc3545;
+      }
+
+      .summary-card h3 {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+      }
+
+      .summary-card .value {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .summary-card.passed .value {
+        color: #28a745;
+      }
+
+      .summary-card.failed .value {
+        color: #dc3545;
+      }
+
+      .features {
+        padding: 30px;
+      }
+
+      .feature {
+        margin-bottom: 30px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .feature-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 20px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .feature-header h2 {
+        font-size: 1.3em;
+      }
+
+      .scenarios {
+        background: white;
+        display: none;
+      }
+
+      .scenarios.show {
+        display: block;
+      }
+
+      .scenario {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+      }
+
+      .scenario-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .scenario-status {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 0.8em;
+      }
+
+      .scenario-status.passed {
+        background: #28a745;
+      }
+
+      .scenario-status.failed {
+        background: #dc3545;
+      }
+
+      .scenario-name {
+        flex: 1;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .scenario-time {
+        color: #999;
+        font-size: 0.9em;
+      }
+
+      .steps {
+        margin-top: 10px;
+        padding-left: 40px;
+      }
+
+      .step {
+        padding: 5px 0;
+        color: #666;
+        font-size: 0.95em;
+        border-left: 2px solid transparent;
+        padding-left: 10px;
+      }
+
+      .step.passed {
+        color: #28a745;
+        border-left-color: #28a745;
+      }
+
+      .step.failed {
+        color: #dc3545;
+        border-left-color: #dc3545;
+      }
+
+      .step-keyword {
+        font-weight: bold;
+      }
+
+      .footer {
+        background: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .progress-bar {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+      }
+    </style>
+    <script>
+      function toggleFeature(element) {
+        const scenarios = element.nextElementSibling;
+        scenarios.classList.toggle('show');
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>♟️ 象棋 (Chinese Chess)</h1>
+        <p>BDD Test Report</p>
+        <a href="index.html" class="back-link">← 返回總覽</a>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary">
+        <div class="summary-card passed">
+          <h3>通過的場景</h3>
+          <div class="value">22</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%"></div>
+          </div>
+        </div>
+        <div class="summary-card failed">
+          <h3>失敗的場景</h3>
+          <div class="value">0</div>
+        </div>
+        <div class="summary-card passed">
+          <h3>通過的步驟</h3>
+          <div class="value">66</div>
+        </div>
+        <div class="summary-card">
+          <h3>總場景數</h3>
+          <div class="value">22</div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="features">
+        <div class="feature">
+          <div class="feature-header" onclick="toggleFeature(this)">
+            <h2>Chinese Chess (象棋) Rules</h2>
+            <span>✓ 通過</span>
+          </div>
+          <div class="scenarios show">
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Red moves the General within the palace (Legal)</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red
+                  General at (1, 5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the General from (1, 5) to (1, 4)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is legal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Red moves the General outside the palace (Illegal)</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red
+                  General at (1, 6)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the General from (1, 6) to (1, 7)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Generals face each other on the same file (Illegal)</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board has:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the General from (2, 4) to (2, 5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Guard diagonally in the palace (Legal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red Guard
+                  at (1, 4)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Guard from (1, 4) to (2, 5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is legal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Red moves the Guard straight (Illegal)</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red Guard
+                  at (2, 5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Guard from (2, 5) to (2, 6)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Red moves the Rook along a clear rank (Legal)</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red Rook
+                  at (4, 1)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Rook from (4, 1) to (4, 9)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is legal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Rook and attempts to jump over a piece (Illegal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board has:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Rook from (4, 1) to (4, 9)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Horse in an "L" shape with no block (Legal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red Horse
+                  at (3, 3)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Horse from (3, 3) to (5, 4)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is legal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Horse and it is blocked by an adjacent piece (Illegal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board has:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Horse from (3, 3) to (5, 4)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Cannon like a Rook with an empty path (Legal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red Cannon
+                  at (6, 2)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Cannon from (6, 2) to (6, 8)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is legal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Cannon and jumps exactly one screen to capture (Legal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board has:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Cannon from (6, 2) to (6, 8)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is legal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Cannon and tries to jump with zero screens (Illegal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board has:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Cannon from (6, 2) to (6, 8)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Cannon and tries to jump with more than one screen (Illegal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board has:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Cannon from (6, 2) to (6, 8)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Elephant 2-step diagonal with a clear midpoint (Legal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red
+                  Elephant at (3, 3)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Elephant from (3, 3) to (5,
+                  5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is legal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Elephant and tries to cross the river (Illegal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red
+                  Elephant at (5, 3)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Elephant from (5, 3) to (7,
+                  5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Elephant and its midpoint is blocked (Illegal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board has:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Elephant from (3, 3) to (5,
+                  5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Soldier forward before crossing the river (Legal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red
+                  Soldier at (3, 5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Soldier from (3, 5) to (4, 5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is legal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Soldier and tries to move sideways before crossing (Illegal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red
+                  Soldier at (3, 5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Soldier from (3, 5) to (3, 4)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Soldier sideways after crossing the river (Legal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red
+                  Soldier at (6, 5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Soldier from (6, 5) to (6, 4)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is legal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red moves the Soldier and attempts to move backward after crossing (Illegal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board is empty except for a Red
+                  Soldier at (6, 5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Soldier from (6, 5) to (5, 5)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the move is illegal
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red captures opponent's General and wins immediately (Legal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board has:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Rook from (5, 5) to (5, 8)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> Red wins immediately
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Red captures a non-General piece and the game continues (Legal)
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the board has:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> Red moves the Rook from (5, 5) to (5, 8)
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the game is not over just from that capture
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>
+          報告生成時間：2026-05-17 14:14:14<br />
+          總計：22 個場景，22 個通過，0 個失敗 | 步驟：66 個，66 個通過，0 個失敗
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

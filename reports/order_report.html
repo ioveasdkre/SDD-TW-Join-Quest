@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📦 訂單系統 (Order System) - BDD 測試報告</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 15px;
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-size: 0.95em;
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+        transition: background 0.3s;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 30px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+      }
+
+      .summary-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #667eea;
+      }
+
+      .summary-card.passed {
+        border-left-color: #28a745;
+      }
+
+      .summary-card.failed {
+        border-left-color: #dc3545;
+      }
+
+      .summary-card h3 {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+      }
+
+      .summary-card .value {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .summary-card.passed .value {
+        color: #28a745;
+      }
+
+      .summary-card.failed .value {
+        color: #dc3545;
+      }
+
+      .features {
+        padding: 30px;
+      }
+
+      .feature {
+        margin-bottom: 30px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .feature-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 20px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .feature-header h2 {
+        font-size: 1.3em;
+      }
+
+      .scenarios {
+        background: white;
+        display: none;
+      }
+
+      .scenarios.show {
+        display: block;
+      }
+
+      .scenario {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+      }
+
+      .scenario-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .scenario-status {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 0.8em;
+      }
+
+      .scenario-status.passed {
+        background: #28a745;
+      }
+
+      .scenario-status.failed {
+        background: #dc3545;
+      }
+
+      .scenario-name {
+        flex: 1;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .scenario-time {
+        color: #999;
+        font-size: 0.9em;
+      }
+
+      .steps {
+        margin-top: 10px;
+        padding-left: 40px;
+      }
+
+      .step {
+        padding: 5px 0;
+        color: #666;
+        font-size: 0.95em;
+        border-left: 2px solid transparent;
+        padding-left: 10px;
+      }
+
+      .step.passed {
+        color: #28a745;
+        border-left-color: #28a745;
+      }
+
+      .step.failed {
+        color: #dc3545;
+        border-left-color: #dc3545;
+      }
+
+      .step-keyword {
+        font-weight: bold;
+      }
+
+      .footer {
+        background: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .progress-bar {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+      }
+    </style>
+    <script>
+      function toggleFeature(element) {
+        const scenarios = element.nextElementSibling;
+        scenarios.classList.toggle('show');
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>📦 訂單系統 (Order System)</h1>
+        <p>BDD Test Report</p>
+        <a href="index.html" class="back-link">← 返回總覽</a>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary">
+        <div class="summary-card passed">
+          <h3>通過的場景</h3>
+          <div class="value">9</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%"></div>
+          </div>
+        </div>
+        <div class="summary-card failed">
+          <h3>失敗的場景</h3>
+          <div class="value">0</div>
+        </div>
+        <div class="summary-card passed">
+          <h3>通過的步驟</h3>
+          <div class="value">37</div>
+        </div>
+        <div class="summary-card">
+          <h3>總場景數</h3>
+          <div class="value">9</div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="features">
+        <div class="feature">
+          <div class="feature-header" onclick="toggleFeature(this)">
+            <h2>E-commerce Order Pricing and Promotions</h2>
+            <span>✓ 通過</span>
+          </div>
+          <div class="scenarios show">
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Single product without promotions</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> no promotions are applied
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> a customer places an order with:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the order summary should be:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">And</span> the customer should receive:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">
+                  Threshold discount applies when subtotal reaches 1000
+                </div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the threshold discount promotion is
+                  configured:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> a customer places an order with:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the order summary should be:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">And</span> the customer should receive:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Buy-one-get-one for cosmetics - multiple products</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the buy one get one promotion for
+                  cosmetics is active
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> a customer places an order with:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the order summary should be:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">And</span> the customer should receive:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Buy-one-get-one for cosmetics - same product twice</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the buy one get one promotion for
+                  cosmetics is active
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> a customer places an order with:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the order summary should be:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">And</span> the customer should receive:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Buy-one-get-one for cosmetics - mixed categories</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the buy one get one promotion for
+                  cosmetics is active
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> a customer places an order with:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the order summary should be:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">And</span> the customer should receive:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Multiple promotions stacked</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the threshold discount promotion is
+                  configured:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">And</span> the buy one get one promotion for cosmetics
+                  is active
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> a customer places an order with:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the order summary should be:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">And</span> the customer should receive:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Single product bulk purchase with quantity discount</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the threshold discount promotion is
+                  configured:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> a customer places an order with:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the order summary should be:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">And</span> the customer should receive:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Large bulk purchase with threshold discount</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> the threshold discount promotion is
+                  configured:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> a customer places an order with:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the order summary should be:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">And</span> the customer should receive:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="scenario-header">
+                <div class="scenario-status passed">✓</div>
+                <div class="scenario-name">Multiple different products bulk purchase</div>
+                <div class="scenario-time">0.000s</div>
+              </div>
+              <div class="steps">
+                <div class="step passed">
+                  <span class="step-keyword">Given</span> no promotions are applied
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">When</span> a customer places an order with:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">Then</span> the order summary should be:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+                <div class="step passed">
+                  <span class="step-keyword">And</span> the customer should receive:
+                  <span style="color: #999; font-size: 0.85em"> (0.000s)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>
+          報告生成時間：2026-05-17 14:14:14<br />
+          總計：9 個場景，9 個通過，0 個失敗 | 步驟：37 個，37 個通過，0 個失敗
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

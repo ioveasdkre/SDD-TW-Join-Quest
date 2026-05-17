@@ -19,9 +19,98 @@ uv run python -m pytest -v
 
 ### 測試結果
 
-- **BDD 情境**：12 個情境全部通過
-- **步驟定義**：53 個步驟全部通過
-- **功能檔案**：2 個功能檔案（order.feature, activity.feature）
+- **BDD 情境**：31 個情境全部通過 (象棋: 22 個 ✅, 訂單: 9 個 ✅)
+- **步驟定義**：103 個步驟全部通過 (象棋: 66 個 ✅, 訂單: 37 個 ✅)
+- **功能檔案**：2 個功能檔案 (chess.feature, order.feature)
+- **成功率**：100% ✅
+
+## 生成測試報告
+
+本專案支持生成美觀的 HTML 測試報告。報告數據將存儲在 `reports/` 目錄中，保持根目錄整潔。
+
+### 快速開始
+
+```bash
+# 1. 生成 JSON 格式的測試數據
+uv run python -m behave features/chess/chess.feature --format=json --outfile=reports/chess_report.json
+uv run python -m behave features/order/order.feature --format=json --outfile=reports/order_report.json
+
+# 2. 生成 HTML 報告和總覽儀表板
+uv run python generate_reports.py
+```
+
+### 報告結構
+
+```
+reports/
+├── index.html              ← 📋 總覽儀表板（主入口）
+├── chess_report.html       ← ♟️ 象棋詳細報告
+├── order_report.html       ← 📦 訂單系統詳細報告
+├── chess_report.json       ← 象棋測試數據（原始）
+└── order_report.json       ← 訂單系統測試數據（原始）
+```
+
+### 查看報告
+
+#### 方式 1：使用瀏覽器
+
+1. 在瀏覽器中打開 `reports/index.html`
+2. 點擊各 Feature 卡片可查看詳細報告
+3. 報告支持點擊展開/收起 Scenario 詳情
+
+#### 方式 2：用檔案管理器
+
+1. 導航至 `reports/` 目錄
+2. 雙擊 `index.html` 即可在預設瀏覽器中打開
+
+### 報告內容
+
+**總覽儀表板** (`index.html`)：
+
+- 全專案統計（總場景數、通過率、步驟數）
+- 各 Feature 卡片摘要
+- 快速鏈接至詳細報告
+
+**詳細報告** (例：`chess_report.html`)：
+
+- Feature 名稱與描述
+- Scenario 清單及執行狀態（✓ 通過/✗ 失敗）
+- 每個 Scenario 的完整 Step 定義
+- 執行耗時統計
+- 返回總覽按鈕
+
+### 報告特性
+
+✅ **視覺化設計**
+
+- 漸層背景與卡片式佈局
+- 綠色（✓ 通過）和紅色（✗ 失敗）狀態指示
+- 進度條顯示通過比例
+
+✅ **互動功能**
+
+- 點擊 Feature 區塊展開/收起 Scenario
+- 可點擊的報告卡片跳轉詳細內容
+- 返回按鈕便捷導航
+
+✅ **詳細資訊**
+
+- 每個步驟的執行耗時（毫秒）
+- Scenario 成功率百分比
+- 報告生成時間戳記
+
+✅ **便於分享**
+
+- 整個 `reports/` 目錄可獨立分享給他人
+- 無需依賴任何服務器或工具
+- 任何瀏覽器都能打開
+
+### 報告示例
+
+| Feature | Scenarios | Steps    | 成功率 |
+| ------- | --------- | -------- | ------ |
+| ♟️ 象棋 | 22/22 ✅  | 66/66 ✅ | 100%   |
+| 📦 訂單 | 9/9 ✅    | 37/37 ✅ | 100%   |
 
 ### 本組織將專注於以下目標
 
